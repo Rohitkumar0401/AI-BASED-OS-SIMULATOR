@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# Flask
+instance/
+.flaskenv
+
+# Environment / secrets
+.env
+*.cfg
+config_local.py
+
+# Database
+*.sqlite3
+*.db
+
+# ML model artifacts (can be large — regenerate instead of committing if huge)
+*.pkl
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
