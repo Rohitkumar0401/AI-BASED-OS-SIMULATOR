@@ -1,18 +1,21 @@
 """
-Day 2 — Flask Skeleton
-======================
-Goal: prove Flask can talk to Oracle through db_connector.py by inserting
-a test row into `users` and `simulations`, then reading it back.
+Flask App — Day 2 (DB skeleton) + Day 3 (CPU scheduling routes)
+=================================================================
+Day 2: proves Flask can talk to Oracle (see /test-db).
+Day 3: adds the real CPU scheduling simulation endpoint (see cpu_scheduling/routes.py).
 
-Run with:  python app.py
+Run with:  python App.py
 Then visit: http://127.0.0.1:5000/
 and:        http://127.0.0.1:5000/test-db
+POST to:    http://127.0.0.1:5000/simulate/cpu
 """
 
 from flask import Flask, jsonify, request
 from db import db_connector
+from cpu_scheduling.routes import cpu_bp
 
 app = Flask(__name__)
+app.register_blueprint(cpu_bp)
 
 
 @app.route("/")
@@ -20,7 +23,10 @@ def home():
     return jsonify({
         "status": "ok",
         "message": "AI-Based OS Simulator backend is running.",
-        "routes": ["/", "/test-db", "/users (POST)", "/users (GET)"]
+        "routes": [
+            "/", "/test-db", "/users (POST)", "/users (GET)",
+            "/simulate/cpu (POST)", "/simulations/cpu/<sim_id> (GET)"
+        ]
     })
 
 
