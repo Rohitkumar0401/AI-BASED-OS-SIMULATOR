@@ -1,5 +1,5 @@
 """
-Flask App — Day 2 (DB skeleton) + Day 3 (CPU scheduling routes)
+Flask App — Day 2 (DB skeleton) + Day 3 (CPU) + Day 4 (Memory)
 =================================================================
 Day 2: proves Flask can talk to Oracle (see /test-db).
 Day 3: adds the real CPU scheduling simulation endpoint (see cpu_scheduling/routes.py).
@@ -13,9 +13,11 @@ POST to:    http://127.0.0.1:5000/simulate/cpu
 from flask import Flask, jsonify, request
 from db import db_connector
 from cpu_scheduling.routes import cpu_bp
+from memory_management.routes import memory_bp
 
 app = Flask(__name__)
 app.register_blueprint(cpu_bp)
+app.register_blueprint(memory_bp)
 
 
 @app.route("/")
@@ -25,7 +27,8 @@ def home():
         "message": "AI-Based OS Simulator backend is running.",
         "routes": [
             "/", "/test-db", "/users (POST)", "/users (GET)",
-            "/simulate/cpu (POST)", "/simulations/cpu/<sim_id> (GET)"
+            "/simulate/cpu (POST)", "/simulations/cpu/<sim_id> (GET)",
+            "/simulate/memory (POST)", "/simulations/memory/<sim_id> (GET)"
         ]
     })
 

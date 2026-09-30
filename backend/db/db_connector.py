@@ -11,7 +11,7 @@ import oracledb
 # ---- Update these to match your local Oracle setup ----
 DB_CONFIG = {
     "user": "your_oracle_username",       # e.g. "system" or your own schema user
-    "password": "oracle",
+    "password": "your_oracle_password",
     "dsn": "localhost:1521/XE",            # host:port/service_name — XE is the default XE service
 }
 
@@ -144,6 +144,49 @@ def save_ai_recommendation(sim_id, recommended_algorithm, confidence_score,
             "sim_id": sim_id, "rec_algo": recommended_algorithm,
             "conf": confidence_score, "expl": explanation_text, "ver": model_version,
         },
+        returning_id=True,
+    )
+
+
+# ------------------------------------------------------------
+# Memory management helpers (Day 4)
+# ------------------------------------------------------------
+
+def save_memory_inputs(sim_id, reference_string, reference_length,
+                        frame_count, unique_pages):
+    return run_query(
+        """INSERT INTO memory_inputs
+           (sim_id, reference_string, reference_length, frame_count, unique_pages)
+           VALUES (:sim_id, :ref_str, :ref_len, :frames, :uniq)
+           RETURNING input_id INTO :out_id""",
+        {"sim_id": sim_id, "ref_str": reference_string, "ref_len": reference_length,
+         "frames": frame_count, "uniq": unique_pages},
+        returning_id=True,
+    )
+
+
+def save_memory_result(sim_id, algorithm, page_faults, page_hits, hit_miss_trace):
+    return run_query(
+        """INSERT INTO memory_results
+           (sim_id, algorithm, page_faults, page_hits, hit_miss_trace)
+           VALUES (:sim_id, :algo, :faults, :hits, :trace)
+           RETURNING result_id INTO :out_id""",
+        {"sim_id": sim_id, "algo": algorithm, "faults": page_faults,
+         "hits": page_hits, "trace": hit_miss_trace},
+        returning_id=True,
+    )
+
+
+def save_memory_training_row(sim_id, frame_count, unique_pages,
+                              best_algorithm, best_metric_value):
+    return run_query(
+        """INSERT INTO training_dataset
+           (sim_id, module_type, frame_count, unique_pages,
+            best_algorithm, best_metric_value)
+           VALUES (:sim_id, 'memory', :frames, :uniq, :best_algo, :best_val)
+           RETURNING record_id INTO :out_id""",
+        {"sim_id": sim_id, "frames": frame_count, "uniq": unique_pages,
+         "best_algo": best_algorithm, "best_val": best_metric_value},
         returning_id=True,
     )
 
