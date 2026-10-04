@@ -1,5 +1,5 @@
 """
-Flask App — Day 2 (DB skeleton) + Day 3 (CPU) + Day 4 (Memory)
+Flask App — Day 2 (DB) + Day 3 (CPU) + Day 4 (Memory) + Day 5 (Disk)
 =================================================================
 Day 2: proves Flask can talk to Oracle (see /test-db).
 Day 3: adds the real CPU scheduling simulation endpoint (see cpu_scheduling/routes.py).
@@ -14,10 +14,12 @@ from flask import Flask, jsonify, request
 from db import db_connector
 from cpu_scheduling.routes import cpu_bp
 from memory_management.routes import memory_bp
+from disk_scheduling.routes import disk_bp
 
 app = Flask(__name__)
 app.register_blueprint(cpu_bp)
 app.register_blueprint(memory_bp)
+app.register_blueprint(disk_bp)
 
 
 @app.route("/")
@@ -28,7 +30,8 @@ def home():
         "routes": [
             "/", "/test-db", "/users (POST)", "/users (GET)",
             "/simulate/cpu (POST)", "/simulations/cpu/<sim_id> (GET)",
-            "/simulate/memory (POST)", "/simulations/memory/<sim_id> (GET)"
+            "/simulate/memory (POST)", "/simulations/memory/<sim_id> (GET)",
+            "/simulate/disk (POST)", "/simulations/disk/<sim_id> (GET)"
         ]
     })
 
