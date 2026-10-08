@@ -191,6 +191,92 @@ def save_memory_training_row(sim_id, frame_count, unique_pages,
     )
 
 
+# ------------------------------------------------------------
+# Disk scheduling helpers (Day 5)
+# ------------------------------------------------------------
+
+def save_disk_inputs(sim_id, request_queue, request_count, starting_head,
+                      disk_size, direction):
+    return run_query(
+        """INSERT INTO disk_inputs
+           (sim_id, request_queue, request_count, starting_head, disk_size, direction)
+           VALUES (:sim_id, :reqs, :count, :head, :size, :dir)
+           RETURNING input_id INTO :out_id""",
+        {"sim_id": sim_id, "reqs": request_queue, "count": request_count,
+         "head": starting_head, "size": disk_size, "dir": direction},
+        returning_id=True,
+    )
+
+
+def save_disk_result(sim_id, algorithm, total_head_movement, service_order):
+    return run_query(
+        """INSERT INTO disk_results
+           (sim_id, algorithm, total_head_movement, service_order)
+           VALUES (:sim_id, :algo, :movement, :order)
+           RETURNING result_id INTO :out_id""",
+        {"sim_id": sim_id, "algo": algorithm, "movement": total_head_movement,
+         "order": service_order},
+        returning_id=True,
+    )
+
+
+def save_disk_training_row(sim_id, request_count, best_algorithm, best_metric_value):
+    return run_query(
+        """INSERT INTO training_dataset
+           (sim_id, module_type, request_count, best_algorithm, best_metric_value)
+           VALUES (:sim_id, 'disk', :count, :best_algo, :best_val)
+           RETURNING record_id INTO :out_id""",
+        {"sim_id": sim_id, "count": request_count,
+         "best_algo": best_algorithm, "best_val": best_metric_value},
+        returning_id=True,
+    )
+
+
+# ------------------------------------------------------------
+# Deadlock detection helpers (Day 6)
+# ------------------------------------------------------------
+
+def save_deadlock_inputs(sim_id, process_count, resource_count,
+                          allocation_matrix_json, max_matrix_json, available_vector):
+    return run_query(
+        """INSERT INTO deadlock_inputs
+           (sim_id, process_count, resource_count, allocation_matrix,
+            max_matrix, available_vector)
+           VALUES (:sim_id, :pc, :rc, :alloc, :max_m, :avail)
+           RETURNING input_id INTO :out_id""",
+        {"sim_id": sim_id, "pc": process_count, "rc": resource_count,
+         "alloc": allocation_matrix_json, "max_m": max_matrix_json, "avail": available_vector},
+        returning_id=True,
+    )
+
+
+def save_deadlock_result(sim_id, is_safe, safe_sequence_str, deadlocked_processes_str):
+    return run_query(
+        """INSERT INTO deadlock_results
+           (sim_id, is_safe, safe_sequence, deadlocked_processes)
+           VALUES (:sim_id, :is_safe, :seq, :deadlocked)
+           RETURNING result_id INTO :out_id""",
+        {"sim_id": sim_id, "is_safe": 1 if is_safe else 0,
+         "seq": safe_sequence_str, "deadlocked": deadlocked_processes_str},
+        returning_id=True,
+    )
+
+
+def save_deadlock_training_row(sim_id, process_count, best_algorithm, best_metric_value):
+    """For deadlock, the 'label' is simply SAFE or UNSAFE — this feeds a
+    future classifier that predicts, from process/resource counts and
+    utilization, whether a given configuration is likely to be safe."""
+    return run_query(
+        """INSERT INTO training_dataset
+           (sim_id, module_type, process_count, best_algorithm, best_metric_value)
+           VALUES (:sim_id, 'deadlock', :pc, :best_algo, :best_val)
+           RETURNING record_id INTO :out_id""",
+        {"sim_id": sim_id, "pc": process_count,
+         "best_algo": best_algorithm, "best_val": best_metric_value},
+        returning_id=True,
+    )
+
+
 if __name__ == "__main__":
     # quick manual connectivity check
     try:
